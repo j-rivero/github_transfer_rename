@@ -1,4 +1,4 @@
-#!/bin/bash
+ !/bin/bash
 
 set -e
 
@@ -56,14 +56,13 @@ for org_setting in "${GH_ORGS[@]}"; do
     echo "  + ORG MOVE: ${current_gh_uri} -> ${new_org}"
     gh api "repos/${current_gh_uri}/transfer" -f new_owner="${new_org}" --silent
     # Rename the repository
-    echo -n "    * ${repo_name}"
     new_repo_name=$(generate_new_repo_name "${repo_name}")
+    echo -n "    * ${repo_name}"
     if [[ "${repo_name}" == "${new_repo_name}" ]]; then
       echo ": NO CHANGE"
     else
-      new_org_new_repo_name_uri="${new_org}/${new_repo_name}"
-      echo " ${new_repo_name}--> ${new_org_new_repo_name_uri}"
-      gh repo rename "${new_repo_name}" --repo "${new_org_old_repo_name_uri}" --confirm
+      echo " --> ${new_repo_name}"
+      gh repo rename "${new_repo_name}" --repo "${new_org_old_repo_name_uri}"
     fi
   done
   echo "------------------------------------------"

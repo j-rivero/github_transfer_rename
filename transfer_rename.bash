@@ -21,10 +21,11 @@ generate_new_repo_name()
 }
 
 declare -a GH_ORGS
-GH_ORGS[0]='ignition-release;gazebo-release'
-GH_ORGS[1]='ignitionrobotics;gazebosim'
-GH_ORGS[2]='ignition-forks;gazebo-forks'
-GH_ORGS[3]='ignition-tooling;gazebo-tooling'
+GH_ORGS[0]='ignitiontesting;gazebotesting'
+# GH_ORGS[0]='ignition-release;gazebo-release'
+# GH_ORGS[1]='ignitionrobotics;gazebosim'
+# GH_ORGS[2]='ignition-forks;gazebo-forks'
+# GH_ORGS[3]='ignition-tooling;gazebo-tooling'
 
 for org_setting in "${GH_ORGS[@]}"; do
   IFS=";" read -r -a org <<< "${org_setting}"
@@ -34,6 +35,12 @@ for org_setting in "${GH_ORGS[@]}"; do
   echo " LIST OF REPOSITORIES"
   repositories=$(get_org_repo_list "${current_org}")
   for repo_name in ${repositories}; do
+    # Move to the new org
+    current_gh_uri="${current_org}/${repo_name}"
+    new_gh_uri="${new_org}/${repo_name}"
+    echo "  + ORG MOVE: ${current_gh_uri} -> ${new_gh_uri}"
+    echo "gh api "repos/${current_gh_uri}/transfer" -f new_owner=${new_gh_uri}"
+    # Rename the repository
     echo -n "    * ${repo_name}"
     new_repo_name=$(generate_new_repo_name "${repo_name}")
     if [[ "${repo_name}" == "${new_repo_name}" ]]; then

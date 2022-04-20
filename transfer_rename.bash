@@ -2,6 +2,17 @@
 
 set -e
 
+if [[ ${#} -eq 1 ]] && [[ ${1} == '--help' ]]; then
+    echo "Usage: ${0} [repo-name-for-single-migration]"
+    exit 1
+fi
+
+SINGLE_MIGRATION_REPO=
+if [[ ${#} -eq 1 ]]; then
+  SINGLE_MIGRATION_REPO=${1}
+  echo "! Single repository migration enabled. Only for ${SINGLE_MIGRATION_REPO}"
+fi
+
 get_org_repo_list()
 {
   local org="${1}"
@@ -17,6 +28,7 @@ generate_new_repo_name()
   new_name=${current_name/ignition-/gz-}
   new_name=${new_name/ignition_/gz_}
   new_name=${new_name/ign-/gz-}
+  new_name=${new_name/-ign/-gz}
   echo "${new_name}"
 }
 
@@ -35,18 +47,23 @@ for org_setting in "${GH_ORGS[@]}"; do
   echo " LIST OF REPOSITORIES"
   repositories=$(get_org_repo_list "${current_org}")
   for repo_name in ${repositories}; do
-    # Move to the new org
+    if [[ -n ${SINGLE_MIGRATION_REPO} ]]; then
+      [[ "${SINGLE_MIGRATION_REPO}" != "${repo_name}" ]] && continue
+    fi
+    # 1. Move to the new org
     current_gh_uri="${current_org}/${repo_name}"
-    new_gh_uri="${new_org}/${repo_name}"
-    echo "  + ORG MOVE: ${current_gh_uri} -> ${new_gh_uri}"
-    echo "gh api "repos/${current_gh_uri}/transfer" -f new_owner=${new_gh_uri}"
+    new_org_old_repo_name_uri="${new_org}/${repo_name}"
+    echo "  + ORG MOVE: ${current_gh_uri} -> ${new_org}"
+    gh api "repos/${current_gh_uri}/transfer" -f new_owner="${new_org}" --silent
     # Rename the repository
     echo -n "    * ${repo_name}"
     new_repo_name=$(generate_new_repo_name "${repo_name}")
     if [[ "${repo_name}" == "${new_repo_name}" ]]; then
       echo ": NO CHANGE"
     else
-      echo " --> ${new_repo_name}"
+      new_org_new_repo_name_uri="${new_org}/${new_repo_name}"
+      echo " ${new_repo_name}--> ${new_org_new_repo_name_uri}"
+      gh repo rename "${new_repo_name}" --repo "${new_org_old_repo_name_uri}" --confirm
     fi
   done
   echo "------------------------------------------"

@@ -10,7 +10,7 @@ change required by the Ignition -> Gazebo
 
 ## Scripts
 
-### transfer_rename
+### SCRIPT: transfer_rename
 
 The script transfers all repositories in a given GitHub orgs to a different one.
 It also applies some rules to rename the moved repositories from Ignition names
@@ -22,14 +22,12 @@ orig;target repository values (i.e: ignition-forks;gazebo-forks);
 
 #### Usage:
 
-  Usage: transfer_rename.bash [repo-name-for-single-migration]
+    Usage: transfer_rename.bash [repo-name-for-single-migration]
 
-  repo-name-for-single-migration: if present, instead of processing all
-  repositories it will process just the repository name given.
+    repo-name-for-single-migration: if present, instead of processing all
+    repositories it will process just the repository name given.
 
-#### Input configurations
-
-### copy_board
+### SCRIPT: copy_board
 
 The scripts copies all the cards from one project board in GitHub to another.
 Before using it, both projects needs to exist and have exactly the same columns
@@ -41,14 +39,15 @@ Limitation: the script will convert non "note" cards to a "note" card
 #### Input configurations
 
 The script works with project board IDs. These are easy to get using the following:
-  gh api "orgs/${github_org_name}/projects" | jq .[].name,.[].id
+
+     gh api "orgs/${github_org_name}/projects" | jq .[].name,.[].id
 
 Before using the script please edit the source code and fill the `SOURCE_PROJECT_ID`
 and `TARGET_PROJECT_ID` projects.
 
 #### Usage
 
-  Usage: copy_board.bash
+    Usage: copy_board.bash
 
 #### Implementation details
 Although cards in the board seems similar, API level are different between ones

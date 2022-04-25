@@ -1,4 +1,4 @@
- !/bin/bash
+#!/bin/bash
 
 set -e
 
@@ -7,10 +7,21 @@ if [[ ${#} -eq 1 ]] && [[ ${1} == '--help' ]]; then
     exit 1
 fi
 
+DO_MIGRATION=${DO_MIGRATION:-false}
+
 SINGLE_MIGRATION_REPO=
 if [[ ${#} -eq 1 ]]; then
   SINGLE_MIGRATION_REPO=${1}
   echo "! Single repository migration enabled. Only for ${SINGLE_MIGRATION_REPO}"
+fi
+
+if [[ ${DO_MIGRATION} != 'true' && ${DO_MIGRATION} != 'false' ]]; then
+  echo "DO_MIGRATION needs to true OR false"
+  exit 1
+fi
+
+if ! ${DO_MIGRATION}; then
+  echo "! DO_MIGRATION var is set to false. NO REAL MIGRATION IS DONE"
 fi
 
 get_org_repo_list()
@@ -33,9 +44,9 @@ generate_new_repo_name()
 }
 
 declare -a GH_ORGS
-GH_ORGS[0]='ignitiontesting;gazebotesting'
+# GH_ORGS[0]='ignitiontesting;gazebotesting'
 # GH_ORGS[0]='ignition-release;gazebo-release'
-# GH_ORGS[1]='ignitionrobotics;gazebosim'
+GH_ORGS[1]='ignitionrobotics;gazebosim'
 # GH_ORGS[2]='ignition-forks;gazebo-forks'
 # GH_ORGS[3]='ignition-tooling;gazebo-tooling'
 
@@ -54,7 +65,10 @@ for org_setting in "${GH_ORGS[@]}"; do
     current_gh_uri="${current_org}/${repo_name}"
     new_org_old_repo_name_uri="${new_org}/${repo_name}"
     echo "  + ORG MOVE: ${current_gh_uri} -> ${new_org}"
-    gh api "repos/${current_gh_uri}/transfer" -f new_owner="${new_org}" --silent
+      echo "     > gh api repos/${current_gh_uri}/transfer -f new_owner=${new_org} --silent"
+    if ${DO_MIGRATION}; then
+      gh api "repos/${current_gh_uri}/transfer" -f new_owner="${new_org}" --silent
+    fi
     # Rename the repository
     new_repo_name=$(generate_new_repo_name "${repo_name}")
     echo -n "    * ${repo_name}"
@@ -62,7 +76,10 @@ for org_setting in "${GH_ORGS[@]}"; do
       echo ": NO CHANGE"
     else
       echo " --> ${new_repo_name}"
-      gh repo rename "${new_repo_name}" --repo "${new_org_old_repo_name_uri}"
+      echo "     > gh repo rename ${new_repo_name} --repo ${new_org_old_repo_name_uri}"
+      if ${DO_MIGRATION}; then
+        gh repo rename "${new_repo_name}" --repo "${new_org_old_repo_name_uri}"
+      fi
     fi
   done
   echo "------------------------------------------"

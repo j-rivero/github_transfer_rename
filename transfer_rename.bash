@@ -78,6 +78,8 @@ for org_setting in "${GH_ORGS[@]}"; do
       echo " --> ${new_repo_name}"
       echo "     > gh repo rename ${new_repo_name} --repo ${new_org_old_repo_name_uri}"
       if ${DO_MIGRATION}; then
+        # API seems not to be accesible so fast for moved large repos. Wait a bit
+        sleep 2
         gh repo rename "${new_repo_name}" --repo "${new_org_old_repo_name_uri}"
       fi
     fi

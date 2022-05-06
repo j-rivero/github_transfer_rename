@@ -42,6 +42,7 @@ generate_new_repo_name()
   new_name=${new_name/ign-/gz-}
   new_name=${new_name/-ign/-gz}
   new_name=${new_name/_ign/_gz}
+  new_name=${new_name/ign_/gz_}
   echo "${new_name}"
 }
 

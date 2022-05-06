@@ -74,9 +74,12 @@ for org_setting in "${GH_ORGS[@]}"; do
     fi
     # Rename the repository
     new_repo_name=$(generate_new_repo_name "${repo_name}")
+    archived=$(gh api "repos/${current_gh_uri}" | jq .archived)
     echo -n "    * ${repo_name}"
     if [[ "${repo_name}" == "${new_repo_name}" ]]; then
       echo ": NO CHANGE"
+    elif ${archived}; then
+      echo ": ARCHIVED, NO CHANGE"
     else
       echo " --> ${new_repo_name}"
       echo "     > gh repo rename ${new_repo_name} --repo ${new_org_old_repo_name_uri}"

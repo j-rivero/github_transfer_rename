@@ -37,17 +37,18 @@ generate_new_repo_name()
   local current_name=${1}
 
   new_name=${current_name/ign-gazebo/gz-sim}
-  new_name=${current_name/ignition-/gz-}
+  new_name=${new_name/ignition-/gz-}
   new_name=${new_name/ignition_/gz_}
   new_name=${new_name/ign-/gz-}
   new_name=${new_name/-ign/-gz}
+  new_name=${new_name/_ign/_gz}
   echo "${new_name}"
 }
 
 declare -a GH_ORGS
-GH_ORGS[0]='ignitiontesting;gazebotesting'
+# GH_ORGS[0]='ignitiontesting;gazebotesting'
 # GH_ORGS[0]='ignition-release;gazebo-release'
-# GH_ORGS[1]='ignitionrobotics;gazebosim'
+GH_ORGS[1]='ignitionrobotics;gazebosim'
 # GH_ORGS[2]='ignition-forks;gazebo-forks'
 # GH_ORGS[3]='ignition-tooling;gazebo-tooling'
 
